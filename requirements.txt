@@ -1,4 +1,4 @@
-pip-upgrader
+streamlit.server
 streamlit
 langchain
 openai
