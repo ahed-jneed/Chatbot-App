@@ -1,7 +1,4 @@
 import streamlit as st
-from streamlit.caching import _memoize, _get_cache_key
-from streamlit.report_thread import get_report_ctx
-from streamlit.server.server import Server
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
@@ -9,32 +6,31 @@ from langchain.llms import OpenAI
 
 class SessionState(object):
     def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+        for key, val in kwargs.items():
+            setattr(self, key, val)
 
 def get_session():
-    session_id = get_report_ctx().session_id
-    session_info = Server.get_current()._session_info_by_id.get(session_id)
+    session_id = st.report_thread.get_report_ctx().session_id
+    session_info = st.session_state.get(session_id, None)
     if session_info is None:
-        session = SessionState()
-        session.request_rerun = True
-    else:
-        if "session" not in session_info:
-            session = SessionState()
-            session_info["session"] = session
-        else:
-            session = session_info["session"]
-    return session
+        session_info = {}
+        session_info["request_rerun"] = True
+        st.session_state[session_id] = session_info
+    return session_info
 
-def memoize(func=None, **kwargs):
-    if func:
-        return _memoize(func, **kwargs)
-    else:
-        def wrapper(f):
-            return _memoize(f, **kwargs)
-        return wrapper
+session_state = get_session()
 
-st.set_memoized_func("memoize", memoize)
-st.session_state = get_session()
+if "conversation" not in session_state:
+    memory = ConversationEntityMemory(template=ENTITY_MEMORY_CONVERSATION_TEMPLATE)
+    chain = ConversationChain(memory=memory, llm=OpenAI())
+    session_state["conversation"] = chain
+else:
+    chain = session_state["conversation"]
+
+text_input = st.text_input("User Input", "")
+if st.button("Send"):
+    response = chain(text_input)
+    st.write("Bot Response: ", response)
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
