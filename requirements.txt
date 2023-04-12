@@ -1,4 +1,4 @@
 pip-upgrader
-streamlit
+streamlit==1.21.0
 langchain
 openai
