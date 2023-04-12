@@ -1,6 +1,7 @@
-from streamlit.server import Server
 import streamlit as st
 from langchain.chains import ConversationChain
+from streamlit.report_thread import add_report_ctx
+from streamlit.script_run_context import add_script_run_ctx
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.llms import OpenAI
@@ -9,31 +10,17 @@ class SessionState:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
-def get_session_info(session_id):
-    if session_id is None:
-        return None
-    session_info = Server.get_current()._session_info_by_id.get(session_id)
-    return session_info
-
 def get_session():
-    report_ctx = st.report_thread.get_report_ctx()
-    session_id = None
-    if report_ctx is not None:
-        session_id = report_ctx.session_id
+    session_id = st.report_thread.get_report_ctx().session_id
+    if not hasattr(st.session, 'state'):
+        st.session.state = SessionState(**{"prompt": "", "chain": None})
+    return st.session.state
 
-    session_info = get_session_info(session_id)
-    if session_info is None:
-        session = SessionState()
-        session.request_rerun = True
-    else:
-        if "session" not in session_info:
-            session = SessionState()
-            session_info["session"] = session
-        else:
-            session = session_info["session"]
-    return session
+session_state = get_session()
 
-st.session_state = get_session()
+# example usage
+session_state.prompt = "What is your name?"
+st.write(session_state.prompt)
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
@@ -113,12 +100,9 @@ else:
     st.markdown(''' 
         ```
         - 1. Enter API Key + Hit enter 🔐 
-
         - 2. Ask anything via the text input widget
-
         Your API-key is not stored in any form by this app. However, for transparency ensure to delete your API once used.
         ```
-
         ''')
     st.sidebar.warning('API key required to try this app.The API key is not stored in any form.')
     # st.sidebar.info("Your API-key is not stored in any form by this app. However, for transparency ensure to delete your API once used.")
