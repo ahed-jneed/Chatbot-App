@@ -1,7 +1,7 @@
 import streamlit as st
-from streamlit.caching.hashing import _CacheFuncHasher
-import streamlit.report_thread as ReportThread
-from streamlit.server.Server import Server
+from streamlit.caching import _memoize, _get_cache_key
+from streamlit.report_thread import get_report_ctx
+from streamlit.server.server import Server
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
@@ -9,12 +9,10 @@ from langchain.llms import OpenAI
 
 class SessionState(object):
     def __init__(self, **kwargs):
-        self.hash_funcs = {"_CodeHasher": _CacheFuncHasher}
-        for key, val in kwargs.items():
-            setattr(self, key, val)
+        self.__dict__.update(kwargs)
 
 def get_session():
-    session_id = ReportThread.get_report_ctx().session_id
+    session_id = get_report_ctx().session_id
     session_info = Server.get_current()._session_info_by_id.get(session_id)
     if session_info is None:
         session = SessionState()
@@ -27,6 +25,15 @@ def get_session():
             session = session_info["session"]
     return session
 
+def memoize(func=None, **kwargs):
+    if func:
+        return _memoize(func, **kwargs)
+    else:
+        def wrapper(f):
+            return _memoize(f, **kwargs)
+        return wrapper
+
+st.set_memoized_func("memoize", memoize)
 st.session_state = get_session()
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
