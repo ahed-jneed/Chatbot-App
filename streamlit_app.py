@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit.server.server import Server
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
@@ -6,31 +7,23 @@ from langchain.llms import OpenAI
 
 class SessionState(object):
     def __init__(self, **kwargs):
-        for key, val in kwargs.items():
-            setattr(self, key, val)
+        self.__dict__.update(kwargs)
 
 def get_session():
-    session_id = st.report_thread.get_report_ctx().session_id
-    session_info = st.session_state.get(session_id, None)
+    session_id = st.report_context.session_id
+    session_info = Server.get_current()._session_info_by_id.get(session_id)
     if session_info is None:
-        session_info = {}
-        session_info["request_rerun"] = True
-        st.session_state[session_id] = session_info
-    return session_info
+        session = SessionState()
+        session.request_rerun = True
+    else:
+        if "session" not in session_info:
+            session = SessionState()
+            session_info["session"] = session
+        else:
+            session = session_info["session"]
+    return session
 
-session_state = get_session()
-
-if "conversation" not in session_state:
-    memory = ConversationEntityMemory(template=ENTITY_MEMORY_CONVERSATION_TEMPLATE)
-    chain = ConversationChain(memory=memory, llm=OpenAI())
-    session_state["conversation"] = chain
-else:
-    chain = session_state["conversation"]
-
-text_input = st.text_input("User Input", "")
-if st.button("Send"):
-    response = chain(text_input)
-    st.write("Bot Response: ", response)
+st.session_state = get_session()
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
