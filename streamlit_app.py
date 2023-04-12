@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit.legacy_caching.hashing import _CodeHasher
+from streamlit.hashing import _CodeHasher
 import streamlit.report_thread as ReportThread
 from streamlit.server.Server import Server
 from langchain.chains import ConversationChain
