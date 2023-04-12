@@ -1,4 +1,5 @@
-streamlit
+--upgrade pip
+streamlit == 23.0.1
 langchain
 openai
 streamlit.hashing
