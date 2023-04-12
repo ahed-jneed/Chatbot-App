@@ -5,7 +5,7 @@ from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.llms import OpenAI
 
-cclass SessionState:
+class SessionState:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
