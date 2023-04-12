@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit.hashing import _CodeHasher
+from streamlit.caching.hashing import _CacheFuncHasher
 import streamlit.report_thread as ReportThread
 from streamlit.server.Server import Server
 from langchain.chains import ConversationChain
@@ -9,7 +9,7 @@ from langchain.llms import OpenAI
 
 class SessionState(object):
     def __init__(self, **kwargs):
-        self.hash_funcs = {"_CodeHasher": _CodeHasher}
+        self.hash_funcs = {"_CodeHasher": _CacheFuncHasher}
         for key, val in kwargs.items():
             setattr(self, key, val)
 
