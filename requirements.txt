@@ -1,5 +1,7 @@
-python == 3.7
-streamlit
+treamlit==0.87.0
+streamlit.caching
+langchain
+openai
 langchain
 openai
 streamlit.session_state
