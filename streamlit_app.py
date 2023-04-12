@@ -1,3 +1,4 @@
+from streamlit.server import Server
 import streamlit as st
 from langchain.chains import ConversationChain
 from langchain.chains.conversation.memory import ConversationEntityMemory
@@ -8,17 +9,31 @@ class SessionState:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
+def get_session_info(session_id):
+    if session_id is None:
+        return None
+    session_info = Server.get_current()._session_info_by_id.get(session_id)
+    return session_info
+
 def get_session():
-    session_id = st.report_thread.get_report_ctx().session_id
-    if not hasattr(st.session, 'state'):
-        st.session.state = SessionState(**{"prompt": "", "chain": None})
-    return st.session.state
+    report_ctx = st.report_thread.get_report_ctx()
+    session_id = None
+    if report_ctx is not None:
+        session_id = report_ctx.session_id
 
-session_state = get_session()
+    session_info = get_session_info(session_id)
+    if session_info is None:
+        session = SessionState()
+        session.request_rerun = True
+    else:
+        if "session" not in session_info:
+            session = SessionState()
+            session_info["session"] = session
+        else:
+            session = session_info["session"]
+    return session
 
-# example usage
-session_state.prompt = "What is your name?"
-st.write(session_state.prompt)
+st.session_state = get_session()
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
