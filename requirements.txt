@@ -1,5 +1,5 @@
 pip-upgrader
-streamlit==0.87.0
+streamlit
 streamlit.caching
 langchain
 openai
