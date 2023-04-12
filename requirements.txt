@@ -2,4 +2,3 @@ pip-upgrader
 streamlit
 langchain
 openai
-streamlit.hashing
