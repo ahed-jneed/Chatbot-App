@@ -1,4 +1,5 @@
 pip-upgrader
 streamlit==1.21.0
+streamlit.hashing
 langchain
 openai
