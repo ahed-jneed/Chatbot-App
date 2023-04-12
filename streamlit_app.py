@@ -5,25 +5,21 @@ from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.llms import OpenAI
 
-class SessionState(object):
+cclass SessionState:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
 def get_session():
-    session_id = st.report_context.session_id
-    session_info = Server.get_current()._session_info_by_id.get(session_id)
-    if session_info is None:
-        session = SessionState()
-        session.request_rerun = True
-    else:
-        if "session" not in session_info:
-            session = SessionState()
-            session_info["session"] = session
-        else:
-            session = session_info["session"]
-    return session
+    session_id = st.report_thread.get_report_ctx().session_id
+    if not hasattr(st.session, 'state'):
+        st.session.state = SessionState(**{"prompt": "", "chain": None})
+    return st.session.state
 
-st.session_state = get_session()
+session_state = get_session()
+
+# example usage
+session_state.prompt = "What is your name?"
+st.write(session_state.prompt)
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
