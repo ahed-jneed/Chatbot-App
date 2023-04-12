@@ -1,26 +1,13 @@
 import streamlit as st
 from langchain.chains import ConversationChain
-from streamlit.report_thread import add_report_ctx
-from streamlit.script_run_context import add_script_run_ctx
+from streamlit.session_state import SessionState
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.llms import OpenAI
 
-class SessionState:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
 
-def get_session():
-    session_id = st.report_thread.get_report_ctx().session_id
-    if not hasattr(st.session, 'state'):
-        st.session.state = SessionState(**{"prompt": "", "chain": None})
-    return st.session.state
 
-session_state = get_session()
-
-# example usage
-session_state.prompt = "What is your name?"
-st.write(session_state.prompt)
+session_state = SessionState()
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
