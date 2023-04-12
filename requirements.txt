@@ -1,7 +1,8 @@
-streamlit==0.87.0
+streamlit
+streamlit.hashing
 streamlit.caching
-langchain
-openai
-langchain
-openai
 streamlit.session_state
+langchain
+openai
+langchain
+openai
