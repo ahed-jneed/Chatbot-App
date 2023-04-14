@@ -1,13 +1,9 @@
 import streamlit as st
 from langchain.chains import ConversationChain
-from streamlit.session_state import SessionState
 from langchain.chains.conversation.memory import ConversationEntityMemory
 from langchain.chains.conversation.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
 from langchain.llms import OpenAI
 
-
-
-session_state = SessionState()
 
 st.set_page_config(page_title='🤖Your Talent coach🤖', layout='wide')
 
